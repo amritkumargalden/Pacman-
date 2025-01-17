@@ -12,17 +12,20 @@ public:
     void update(sf::Vector2i pacmanPosition);
     void draw(sf::RenderWindow &window);
     sf::Vector2i getPosition();
+    void setScared(bool scared);
 
 private:
     sf::Texture texture;
     sf::Sprite sprite;
     sf::Vector2i position;
     sf::Clock movementClock;
+    bool isScared;
+    sf::Clock scaredClock;
 
     void moveRandomly();
     void chasePacman(sf::Vector2i pacmanPosition);
+    void runAwayFromPacman(sf::Vector2i pacmanPosition);
     bool canMoveTo(int x, int y);
 };
-
 
 #endif
