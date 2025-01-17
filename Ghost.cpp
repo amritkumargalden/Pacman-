@@ -1,12 +1,12 @@
 #include "Ghost.h"
 
-Ghost::Ghost(int startX, int startY) : position(startX, startY) {
+Ghost::Ghost(int startX, int startY) : position(startX, startY), isScared(false) {
     // Load the ghost texture
     if (!texture.loadFromFile("assets/ghost.png")) {
         std::cerr << "Error: Could not load ghost texture!" << std::endl;
     }
-	
-	// Set the texture and initial position
+    
+    // Set the texture and initial position
     sprite.setTexture(texture);
     sprite.setPosition(position.x * 40, position.y * 40);
     sprite.setColor(sf::Color::Red); // Default color for the ghost
@@ -18,11 +18,16 @@ Ghost::Ghost(int startX, int startY) : position(startX, startY) {
 void Ghost::update(sf::Vector2i pacmanPosition) {
     // Move ghost periodically (e.g., every 0.5 seconds)
     if (movementClock.getElapsedTime().asSeconds() > 0.5f) {
-        int behavior = std::rand() % 2; // 0 = random, 1 = chase Pac-Man
-        if (behavior == 0) {
-            moveRandomly();
+        if (isScared && scaredClock.getElapsedTime().asSeconds() < 5.0f) {
+            runAwayFromPacman(pacmanPosition);
         } else {
-            chasePacman(pacmanPosition);
+            isScared = false; // Reset scared state after 5 seconds
+            int behavior = std::rand() % 2; // 0 = random, 1 = chase Pac-Man
+            if (behavior == 0) {
+                moveRandomly();
+            } else {
+                chasePacman(pacmanPosition);
+            }
         }
         movementClock.restart();
     }
@@ -35,6 +40,13 @@ void Ghost::draw(sf::RenderWindow &window) {
 
 sf::Vector2i Ghost::getPosition() {
     return position;
+}
+
+void Ghost::setScared(bool scared) {
+    isScared = scared;
+    if (scared) {
+        scaredClock.restart();
+    }
 }
 
 void Ghost::moveRandomly() {
@@ -60,6 +72,19 @@ void Ghost::chasePacman(sf::Vector2i pacmanPosition) {
     }
 }
 
+void Ghost::runAwayFromPacman(sf::Vector2i pacmanPosition) {
+    // Simple logic: move away from Pac-Man
+    if (position.x < pacmanPosition.x && canMoveTo(position.x - 1, position.y)) {
+        position.x--;
+    } else if (position.x > pacmanPosition.x && canMoveTo(position.x + 1, position.y)) {
+        position.x++;
+    } else if (position.y < pacmanPosition.y && canMoveTo(position.x, position.y - 1)) {
+        position.y--;
+    } else if (position.y > pacmanPosition.y && canMoveTo(position.x, position.y + 1)) {
+        position.y++;
+    }
+}
+
 bool Ghost::canMoveTo(int x, int y) {
     // Basic boundary checking
     if (x < 0 || x >= 10 || y < 0 || y >= 10) {
@@ -70,4 +95,3 @@ bool Ghost::canMoveTo(int x, int y) {
     // In a full implementation, this should check the maze grid
     return true;
 }
-
