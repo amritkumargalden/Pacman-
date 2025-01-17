@@ -97,7 +97,10 @@ void Game::update() {
         powerUpSound.play();
         std::cout << "Power-up eaten!" << std::endl;
 
-        // TODO: Add "scared" behavior for ghosts
+        // Add "scared" behavior for ghosts
+        for (std::vector<Ghost>::iterator it = ghosts.begin(); it != ghosts.end(); ++it) {
+            it->setScared(true);
+        }
     }
 
     // Update score display
