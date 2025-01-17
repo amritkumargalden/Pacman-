@@ -3,7 +3,7 @@
 #include <string>
 
 Game::Game()
- 	: window(sf::VideoMode(800, 600), "Pac-Man"),
+    : window(sf::VideoMode(800, 600), "Pac-Man"),
       score(0),
       maze(),
       pacman(&maze) 
@@ -36,7 +36,6 @@ Game::Game()
     scoreText.setPosition(10, 10);
     scoreText.setFillColor(sf::Color::White);
 
-
     // Load sound effects
     if (!chompBuffer.loadFromFile("assets/sound_effects/chomp.wav")) {
         std::cerr << "Error: Could not load chomp sound! Ensure the file exists." << std::endl;
@@ -50,6 +49,7 @@ Game::Game()
         powerUpSound.setBuffer(powerUpBuffer);
     }
 }
+
 void Game::run() {
     while (window.isOpen()) {
         processEvents();
@@ -87,7 +87,21 @@ void Game::update() {
         }
     }
 
-    // Rest of the update function remains the same...
+    // Check for Pac-Man eating a pellet
+    int collisionResult = maze.checkCollision(pacman.getPosition());
+    if (collisionResult == 2) { // Pellet eaten
+        score++;
+        chompSound.play();
+        std::cout << "Pellet eaten. Score: " << score << std::endl;
+    } else if (collisionResult == 3) { // Power-up eaten
+        powerUpSound.play();
+        std::cout << "Power-up eaten!" << std::endl;
+
+        // TODO: Add "scared" behavior for ghosts
+    }
+
+    // Update score display
+    scoreText.setString("Score: " + std::to_string(score));
 }
 
 void Game::render() {
@@ -119,4 +133,3 @@ void Game::resetGame() {
     ghosts.push_back(Ghost(1, 8));
     ghosts.push_back(Ghost(8, 8));
 }
-
